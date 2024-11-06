@@ -1,4 +1,7 @@
 Dale Peligro
+
 Jose Godinez
-(Name Here)
+
+Derek Mori
+
 CS3110
