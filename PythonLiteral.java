@@ -1,36 +1,40 @@
 import java.util.Set;
 import java.util.HashSet;
+import java.util.*;
 
 public class PythonLiteral {
 
     public static void main(String[] args) {
-        Set<Integer> states = new HashSet<>();
-        states.add(0);
-        states.add(1);
-        states.add(2);
-        Set<Character> alphabet = new HashSet<>();
-        alphabet.add('a');
-        alphabet.add('b');
-        Set<Integer> acceptStates = new HashSet<>();
-        acceptStates.add(2);
-        Set<NFA.Transition> transitions = new HashSet<>();
-        transitions.add(new NFA.Transition(0, 1, 'a'));
-        transitions.add(new NFA.Transition(1, 2, 'b')); 
-        int startState = 0;
-        int finalState = 2;
-        NFA nfa = new NFA(states, alphabet, startState, finalState, acceptStates, transitions);
-        nfa.addState(0);
-        nfa.addState(1);
-        nfa.addState(2);
-        nfa.setStartState(0);
-        nfa.setFinalState(2);
-        nfa.addTransition(0, 1, 'a');
-        nfa.addTransition(1, 2, 'b');
+        // Define the NFA
+        Set<String> states = new HashSet<>(Arrays.asList("q0", "q1", "q2"));
+        Set<Character> alphabet = new HashSet<>(Arrays.asList('a', 'b'));
 
-        System.out.println("NFA created with states: " + nfa.getStates());
-        System.out.println("Start state: " + nfa.getStartState());
-        System.out.println("Final states: " + nfa.getFinalStates());
-        System.out.println("Transitions: " + nfa.getTransitions());
+        // Define the transitions
+        Map<String, Map<Character, Set<String>>> transitions = new HashMap<>();
+
+        // q0 --a--> {q0, q1}
+        transitions.put("q0", new HashMap<>());
+        transitions.get("q0").put('a', new HashSet<>(Arrays.asList("q0", "q1")));
+
+        // q1 --b--> {q2}
+        transitions.put("q1", new HashMap<>());
+        transitions.get("q1").put('b', new HashSet<>(Collections.singletonList("q2")));
+
+        // q2 --epsilon--> {q0}
+        transitions.put("q2", new HashMap<>());
+        transitions.get("q2").put('b', new HashSet<>(Collections.singletonList("q0")));
+
+        String startState = "q0";
+        Set<String> acceptStates = new HashSet<>(Collections.singletonList("q2"));
+
+        // Instantiate the NFA
+        NFA nfa = new NFA(states, alphabet, transitions, startState, acceptStates);
+
+        
+        System.out.println(nfa);
+        System.out.println(nfa.accept("ab"));
+        System.out.println(nfa.accept("aaab"));
+        System.out.println(nfa.accept("ba"));
     }
 
 }

@@ -1,107 +1,80 @@
-import java.util.HashSet;
-import java.util.Set;
 import java.util.*;
 
 public class NFA {
-
-    private Set<Integer> states;
+    private Set<String> states;
     private Set<Character> alphabet;
-    private int startState;
-    private Set<Integer> acceptStates;
-    private Set<Transition> transitions;
-    private int finalState;
-    private Set<Integer> finalStates;
+    private Map<String, Map<Character, Set<String>>> transitions;
+    private String startState;
+    private Set<String> acceptStates;
 
-    public NFA(Set<Integer> states, Set<Character> alphabet, int startState, int finalState, Set<Integer> acceptStates, Set<Transition> transitions) {
+    // Constructor
+    public NFA(Set<String> states, Set<Character> alphabet, Map<String, Map<Character, Set<String>>> transitions,
+               String startState, Set<String> acceptStates) {
         this.states = states;
         this.alphabet = alphabet;
+        this.transitions = transitions;
         this.startState = startState;
         this.acceptStates = acceptStates;
-        this.transitions = transitions;
-        this.finalState = finalState;
     }
 
-    public boolean accepts(String input) {
-        Set<Integer> currentStates = new HashSet<>();
-        currentStates.add(startState);
-        for (char symbol : input.toCharArray()) {
-            currentStates = getNextStates(currentStates, symbol);
-        }
-        for (int state : currentStates) {
-            if (acceptStates.contains(state)) {
-                return true;
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("States: ").append(states).append("\n");
+        sb.append("Alphabet: ").append(alphabet).append("\n");
+        sb.append("Start State: ").append(startState).append("\n");
+        sb.append("Accept States: ").append(acceptStates).append("\n");
+        sb.append("Transitions:\n");
+
+        for (String state : transitions.keySet()) {
+            for (Character symbol : transitions.get(state).keySet()) {
+                Set<String> nextStates = transitions.get(state).get(symbol);
+                String symbolStr = (symbol == null) ? "ε" : symbol.toString();  // ε represents epsilon
+                sb.append("  ").append(state).append(" --").append(symbolStr)
+                  .append("--> ").append(nextStates).append("\n");
             }
         }
-        return false;
+    
+        return sb.toString();
     }
 
-    private Set<Integer> getNextStates(Set<Integer> currentStates, char symbol) {
-        Set<Integer> nextStates = new HashSet<>();
-        for (int state : currentStates) {
-            for (Transition transition : transitions) {
-                if (transition.fromState == state && transition.symbol == symbol) {
-                    nextStates.add(transition.toState);
+    // Main accept method to check if the input string is accepted
+    public boolean accept(String input) {
+        return acceptHelper(startState, input, 0);
+    }
+
+    // Recursive helper method
+    private boolean acceptHelper(String currentState, String input, int index) {
+        // Base case: if we've reached the end of the input, check if we are in an accept state
+        if (index == input.length()) {
+            return acceptStates.contains(currentState);
+        }
+
+        // Get the current symbol in the input
+        char symbol = input.charAt(index);
+
+        // Check transitions for the current symbol
+        if (transitions.containsKey(currentState) && transitions.get(currentState).containsKey(symbol)) {
+            for (String nextState : transitions.get(currentState).get(symbol)) {
+                // Recursively check the remaining input from the next state
+                if (acceptHelper(nextState, input, index + 1)) {
+                    return true;
                 }
             }
         }
-        return nextStates;
-    }
 
-    public static class Transition {
-        int fromState;
-        int toState;
-        char symbol;
-
-        Transition(int fromState, int toState, char symbol) {
-            this.fromState = fromState;
-            this.toState = toState;
-            this.symbol = symbol;
+        // Check epsilon (empty string) transitions
+        if (transitions.containsKey(currentState) && transitions.get(currentState).containsKey(null)) {
+            for (String nextState : transitions.get(currentState).get(null)) {
+                // Recursively check from the next state without consuming input
+                if (acceptHelper(nextState, input, index)) {
+                    return true;
+                }
+            }
         }
-    }
 
-    public void addTransition(int fromState, int toState, char symbol) {
-        transitions.add(new Transition(fromState, toState, symbol));
+        // If no paths lead to acceptance, return false
+        return false;
     }
-
-    public String getTransitions() {
-        StringBuilder result = new StringBuilder();
-        for (Transition transition : transitions) {
-            result.append(transition.fromState)
-                  .append(" -> ")
-                  .append(transition.toState)
-                  .append(" on ")
-                  .append(transition.symbol)
-                  .append("\n");
-        }
-        return result.toString();
-    }
-
-    public void addState(int state) {
-        states.add(state);
-    }
-
-    public void addAcceptState(int state) {
-        acceptStates.add(state);
-    }
-
-    public void setStartState(int state) {
-        startState = state;
-    }
-
-    public void setFinalState(int state) {
-        finalState = state;
-    }
-
-    public int getStartState() {
-        return startState;
-    }
-
-    public Set<Integer> getFinalStates() {
-        return new HashSet<Integer>(finalStates);
-    }
-
-    public Set<Integer> getStates() {
-        return new HashSet<Integer>(states);
-    }
-
 }
