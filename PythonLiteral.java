@@ -36,6 +36,11 @@ public class PythonLiteral {
         System.out.println("Accepts 'ab' >> " + nfa.accept("ab"));
         System.out.println("Accepts 'aaab' >> " + nfa.accept("aaab"));
         System.out.println("Accepts 'ba' >> " + nfa.accept("ba"));
+
+        System.out.println("Enter a string to check if it is accepted by the NFA: ");
+        Scanner scnr = new Scanner(System.in);
+        String userInput = scnr.nextLine();
+        System.out.println("Accepts '" + userInput + "' >> " + nfa.accept(userInput));
     }
 
 }
