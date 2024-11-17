@@ -62,6 +62,7 @@ public class PythonLiteral {
         // Create the NFA
         NFA nfa = new NFA(states, alphabet, transitions, startState, acceptStates);
 
+        /* 
         // Print the NFA and test inputs
         System.out.println(nfa);
         System.out.println("Accept '123': " + nfa.accept("123"));   // true
@@ -71,6 +72,8 @@ public class PythonLiteral {
         System.out.println("Accept '-4560': " + nfa.accept("-4560"));// true
         System.out.println("Accept '-0': " + nfa.accept("-0"));     // false
         System.out.println("Accept '00': " + nfa.accept("00"));     // false
+        */
+
         /* 
         // user input method
         System.out.println("Enter a string to check if it is accepted by the NFA: "); 
@@ -85,6 +88,7 @@ public class PythonLiteral {
         System.out.println("Enter the name of the file to read: ");
         String fileName = scnr.nextLine();
         String outputFile = "output.txt";
+
         try {
             List<String> lines = ReadInputFile(fileName);
             BufferedWriter fileWriter = new BufferedWriter(new FileWriter(outputFile));
@@ -96,6 +100,7 @@ public class PythonLiteral {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
         scnr.close();
     } 
 
