@@ -1,4 +1,6 @@
 import java.util.*;
+import java.io.*;
+import java.nio.file.*;
 
 public class PythonLiteral {
 
@@ -69,12 +71,35 @@ public class PythonLiteral {
         System.out.println("Accept '-4560': " + nfa.accept("-4560"));// true
         System.out.println("Accept '-0': " + nfa.accept("-0"));     // false
         System.out.println("Accept '00': " + nfa.accept("00"));     // false
-
-        System.out.println("Enter a string to check if it is accepted by the NFA: ");
+        /* 
+        // user input method
+        System.out.println("Enter a string to check if it is accepted by the NFA: "); 
         Scanner scnr = new Scanner(System.in);
         String userInput = scnr.nextLine();
         System.out.println("Accepts '" + userInput + "' >> " + nfa.accept(userInput));
         scnr.close();
+        */
 
+        // read from file method
+        Scanner scnr = new Scanner(System.in);
+        System.out.println("Enter the name of the file to read: ");
+        String fileName = scnr.nextLine();
+        String outputFile = "output.txt";
+        try {
+            List<String> lines = ReadInputFile(fileName);
+            BufferedWriter fileWriter = new BufferedWriter(new FileWriter(outputFile));
+            for (String line : lines) {
+                fileWriter.write("Accepts '" + line + "' >> " + nfa.accept(line) + "\n");
+            }
+            System.out.println("Output written to " + outputFile);
+            fileWriter.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        scnr.close();
     } 
+
+    public static List<String> ReadInputFile(String fileName) throws IOException {
+        return Files.readAllLines(Paths.get(fileName));
+    }
 }
