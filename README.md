@@ -8,6 +8,8 @@ Dale Peligro
   
 - Implemented user file IO
 
+- Created FloatingPT Strings-only NFA in FloatingPT_Branch
+
 
 Jose Godinez
 
