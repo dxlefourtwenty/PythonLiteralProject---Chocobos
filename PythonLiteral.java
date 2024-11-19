@@ -38,21 +38,21 @@ public class PythonLiteral {
 
     public static void PythonLiteralNFA() {
 
-          // Define the NFA for negative and nonzero integers
-        Set<String> states = new HashSet<>(Arrays.asList("q0", "q1", "q2"));
-        Set<Character> alphabet = new HashSet<>(Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-'));
+        // Define the NFA for positive, non-zero integers
+        Set<String> states = new HashSet<>(Arrays.asList("q0", "q1"));
+        Set<Character> alphabet = new HashSet<>(Arrays.asList('1', '2', '3', '4', '5', '6', '7', '8', '9', '0'));
 
         // Define transitions
         Map<String, Map<Set<Character>, Set<String>>> transitions = new HashMap<>();
+
+        // From the start state q0
         transitions.put("q0", Map.of(
-            Set.of('-'), Set.of("q2"),     // From start state, '-' goes to q2 for negative integers
-            Set.of('1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q1") // Positive numbers start at q1
+            Set.of('1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q1") // Positive integers start here
         ));
-        transitions.put("q2", Map.of(
-            Set.of('1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q1") // Negative numbers start at q1 after '-'
-        ));
+
+        // From state q1
         transitions.put("q1", Map.of(
-            Set.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q1") // Loop on digits in q1
+            Set.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q1") // Loop on digits to form multi-digit numbers
         ));
 
         // Define the start state and accept states
