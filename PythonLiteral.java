@@ -38,76 +38,85 @@ public class PythonLiteral {
 
     public static void PythonLiteralNFA() {
 
-        // Define the NFA for Python floating-point literals
-        Set<String> states = new HashSet<>(Arrays.asList("q0", "q1", "q2", "q3", "q4", "q5"));
-        Set<Character> alphabet = new HashSet<>(Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '.', 'e', 'E', '+'));
+         // Define the NFA for Python floating-point, decimal, octal, and hexadecimal literals
+        Set<String> states = new HashSet<>(Arrays.asList("q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8", "q9", "q10", "q11"));
+        Set<Character> alphabet = new HashSet<>(Arrays.asList(
+            '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '.', 'e', 'E', '+', 'o', 'O', 'x', 'X',
+            'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F', '_'
+        ));
 
         // Define transitions
         Map<String, Map<Set<Character>, Set<String>>> transitions = new HashMap<>();
 
         // Initial state
         transitions.put("q0", Map.of(
-            Set.of('-'), Set.of("q2"), // Optional leading negative sign
-            Set.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q1"), // Integer part
-            Set.of('.'), Set.of("q5") // Starts with a decimal point (fractional part only)
+            Set.of('1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q2"), // Start of decimal integer
+            Set.of('0'), Set.of("q5"), // Starts with 0 (could be octal, hexadecimal, or decimal)
+            Set.of('.'), Set.of("q3") // Starts with a decimal point
         ));
 
-        // Integer part
-        transitions.put("q1", Map.of(
-            Set.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q1"), // Continue digits
-            Set.of('.'), Set.of("q5"), // Transition to fractional part
-            Set.of('e', 'E'), Set.of("q3") // Transition to exponent part
-        ));
-
-        // Negative sign handling
+        // Decimal integer part
         transitions.put("q2", Map.of(
-            Set.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q1"), // Integer part after negative sign
-            Set.of('.'), Set.of("q5") // Decimal point after negative sign
+            Set.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q2"), // Continue decimal digits
+            Set.of('_'), Set.of("q9"), // Underscore in decimal integer
+            Set.of('.'), Set.of("q3"), // Transition to fractional part
+            Set.of('e', 'E'), Set.of("q4") // Transition to exponent part
         ));
 
-        // Fractional part
-        transitions.put("q5", Map.of(
-            Set.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q5"), // Fractional digits
-            Set.of('e', 'E'), Set.of("q3") // Transition to exponent part
+        // Handle underscore after decimal digits
+        transitions.put("q9", Map.of(
+            Set.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q2") // Digits after underscore
+        ));
+
+        // Floating point fractional part
+        transitions.put("q3", Map.of(
+            Set.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q3"), // Fractional digits
+            Set.of('e', 'E'), Set.of("q4") // Transition to exponent part
         ));
 
         // Exponent part
-        transitions.put("q3", Map.of(
-            Set.of('+', '-'), Set.of("q4"), // Optional sign in exponent
-            Set.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q4") // Digits in exponent
-        ));
         transitions.put("q4", Map.of(
-            Set.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q4") // Continue exponent digits
+            Set.of('+', '-'), Set.of("q6"), // Optional sign in exponent
+            Set.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q6") // Digits in exponent
+        ));
+        transitions.put("q6", Map.of(
+            Set.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q6") // Continue exponent digits
+        ));
+
+        // Octal and Hexadecimal prefixes
+        transitions.put("q5", Map.of(
+            Set.of('o', 'O'), Set.of("q7"), // Octal prefix
+            Set.of('x', 'X'), Set.of("q8"), // Hexadecimal prefix
+            Set.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q2"), // Decimal literal starting with 0
+            Set.of('_'), Set.of("q9"), // Underscore after 0
+            Set.of('.'), Set.of("q3") // Floating point starting with 0
+        ));
+
+        // Octal digits
+        transitions.put("q7", Map.of(
+            Set.of('0', '1', '2', '3', '4', '5', '6', '7'), Set.of("q7"), // Octal digits
+            Set.of('_'), Set.of("q10") // Underscore in octal digits
+        ));
+        transitions.put("q10", Map.of(
+            Set.of('0', '1', '2', '3', '4', '5', '6', '7'), Set.of("q7") // Continue after underscore in octal
+        ));
+
+        // Hexadecimal digits
+        transitions.put("q8", Map.of(
+            Set.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F'), Set.of("q8"), // Hexadecimal digits
+            Set.of('_'), Set.of("q11") // Underscore in hexadecimal digits
+        ));
+        transitions.put("q11", Map.of(
+            Set.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F'), Set.of("q8") // Continue after underscore in hexadecimal
         ));
 
         // Define the start state and accept states
         String startState = "q0";
-        Set<String> acceptStates = new HashSet<>(Arrays.asList("q1", "q5", "q4"));
+        Set<String> acceptStates = new HashSet<>(Arrays.asList("q2", "q3", "q4", "q6", "q7", "q8", "q5"));
 
         // Create the NFA
         NFA nfa = new NFA(states, alphabet, transitions, startState, acceptStates);
-
-        /* 
-        // Print the NFA and test inputs
-        System.out.println(nfa);
-        System.out.println("Accept '123': " + nfa.accept("123"));   // true
-        System.out.println("Accept '-123': " + nfa.accept("-123")); // true
-        System.out.println("Accept '0': " + nfa.accept("0"));       // false
-        System.out.println("Accept '4560': " + nfa.accept("4560")); // true
-        System.out.println("Accept '-4560': " + nfa.accept("-4560"));// true
-        System.out.println("Accept '-0': " + nfa.accept("-0"));     // false
-        System.out.println("Accept '00': " + nfa.accept("00"));     // false
-        */
-
-        /* 
-        // user input method
-        System.out.println("Enter a string to check if it is accepted by the NFA: "); 
-        Scanner scnr = new Scanner(System.in);
-        String userInput = scnr.nextLine();
-        System.out.println("Accepts '" + userInput + "' >> " + nfa.accept(userInput));
-        scnr.close();
-        */
-
+ 
         // read from file method
         Scanner scnr = new Scanner(System.in);
         System.out.println("Enter the name of the file to read: ");
