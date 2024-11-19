@@ -38,7 +38,7 @@ public class PythonLiteral {
 
     public static void PythonLiteralNFA() {
 
-         // Define the NFA for Python floating-point, decimal, octal, and hexadecimal literals
+        // Define the NFA for Python floating-point, decimal, octal, and hexadecimal literals
         Set<String> states = new HashSet<>(Arrays.asList("q0", "q1", "q2", "q3", "q4", "q5", "q6", "q7", "q8", "q9", "q10", "q11"));
         Set<Character> alphabet = new HashSet<>(Arrays.asList(
             '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', '.', 'e', 'E', '+', 'o', 'O', 'x', 'X',
