@@ -1,5 +1,5 @@
 import java.util.*;
-//hello
+
 public class NFA {
     private Set<String> states;
     private Set<Character> alphabet;
