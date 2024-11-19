@@ -40,27 +40,27 @@ public class PythonLiteral {
 
          // Define the NFA for negative, nonzero decimal, octal, and hexadecimal integers
          Set<String> states = new HashSet<>(Arrays.asList("q0", "q1", "q2", "q3"));
-         Set<Character> alphabet = new HashSet<>(Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '-', 'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F', 'x', 'X'));
+         Set<Character> alphabet = new HashSet<>(Arrays.asList('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F', 'x', 'X'));
  
          // Define transitions
          Map<String, Map<Set<Character>, Set<String>>> transitions = new HashMap<>();
-         transitions.put("q0", Map.of(
-             Set.of('-'), Set.of("q2"),                             // From start state, '-' goes to q2 for negative integers
-             Set.of('1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q1"), // Positive numbers start at q1
-             Set.of('0'), Set.of("q1", "q3")                        // 0 can start both octal (q1) or hexadecimal (q3)
-         ));
-         transitions.put("q2", Map.of(
-             Set.of('1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q1"), // Negative numbers start at q1 after '-'
-             Set.of('0'), Set.of("q1", "q3")                            // Negative octal/hexadecimal
-         ));
-         transitions.put("q1", Map.of(
-             Set.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q1"),   // Loop on decimal numbers
-             Set.of('0', '1', '2', '3', '4', '5', '6', '7'), Set.of("q1")              // Loop on octal digits
-         ));
-         transitions.put("q3", Map.of(
-             Set.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F'),
-             Set.of("q3") // Loop on hexadecimal digits
-         ));
+    transitions.put("q0", Map.of(
+        Set.of('1'), Set.of("q2"),                             // From start state, '-' goes to q2 for negative integers
+        Set.of('1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q1"), // Positive numbers start at q1
+        Set.of('0'), Set.of()                                  // 0 not be accepted by itself
+    ));
+    transitions.put("q2", Map.of(
+        Set.of('1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q1"), // Negative numbers start at q1 after '-'
+        Set.of('0'), Set.of("q1", "q3")                            // Negative octal/hexadecimal
+    ));
+    transitions.put("q1", Map.of(
+        Set.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9'), Set.of("q1"),   // Loop on decimal numbers
+        Set.of('0', '1', '2', '3', '4', '5', '6', '7'), Set.of("q1")              // Loop on octal digits
+    ));
+    transitions.put("q3", Map.of(
+        Set.of('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f', 'A', 'B', 'C', 'D', 'E', 'F'),
+        Set.of("q3") // Loop on hexadecimal digits
+    ));
  
          // Define the start state and accept states
          String startState = "q0";
@@ -70,8 +70,8 @@ public class PythonLiteral {
          NFA nfa = new NFA(states, alphabet, transitions, startState, acceptStates);
  
          // Print the NFA and test inputs
-         System.out.println(nfa);
-         System.out.println("Accept '123': " + nfa.accept("123"));       // true (decimal)
+         //System.out.println(nfa);
+         /*System.out.println("Accept '123': " + nfa.accept("123"));       // true (decimal)
          System.out.println("Accept '-123': " + nfa.accept("-123"));     // true (negative decimal)
          System.out.println("Accept '074': " + nfa.accept("074"));       // true (octal)
          System.out.println("Accept '0x3F': " + nfa.accept("0x3F"));     // true (hexadecimal)
@@ -79,7 +79,7 @@ public class PythonLiteral {
          System.out.println("Accept '-0x3F': " + nfa.accept("-0x3F"));   // true (negative hexadecimal)
          System.out.println("Accept '0': " + nfa.accept("0"));           // false (not a valid nonzero integer)
          System.out.println("Accept '00': " + nfa.accept("00"));         // false (not valid)
-         System.out.println("Accept '0x': " + nfa.accept("0x"));         // false (invalid hexadecimal)
+         System.out.println("Accept '0x': " + nfa.accept("0x"));         // false (invalid hexadecimal)*/
  
 
 
